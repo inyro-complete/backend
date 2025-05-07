@@ -41,6 +41,13 @@ public class UserService {
     }
 
     // 회원 탈퇴 메서드
+    public boolean checkPassword(Long userId, String rawPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        return bCryptPasswordEncoder.matches(rawPassword, user.getPassword());
+    }
+
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Unexpected user."));
@@ -53,7 +60,6 @@ public class UserService {
 
         return new UserResponse(user);
     }
-
 
 //    public Page<PostListResponse> getPostsByUser(Long userId, int page, int size) {
 //        // 분실물 게시글 조회

@@ -3,6 +3,7 @@ package org.complete.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.complete.domain.LostItem;
+import org.complete.domain.User;
 import org.complete.dto.AddLostItemRequest;
 import org.complete.dto.LostItemResponse;
 import org.complete.dto.LostItemListResponse;
@@ -11,6 +12,8 @@ import org.complete.service.LostItemService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,11 +23,12 @@ public class LostItemApiController {
     public final LostItemService lostItemService;
 
     // 분실물 등록 API
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/api/lost-items")
-    public ResponseEntity<LostItem> addLostItem(@RequestHeader("Authorization") String authHeader,
+    public ResponseEntity<LostItem> addLostItem(@AuthenticationPrincipal User user,
                                                 @Valid @ModelAttribute AddLostItemRequest request) {
 
-        LostItem savedLostItem = lostItemService.addLostItem(authHeader, request);
+        LostItem savedLostItem = lostItemService.addLostItem(user.getId(), request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLostItem);
     }
@@ -63,14 +67,16 @@ public class LostItemApiController {
     }
 
     // 분실물 글 삭제 API
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/api/lost-items/{id}")
-    public ResponseEntity<Void> deleteLostItem(@PathVariable long id, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<Void> deleteLostItem(@PathVariable long id,
+                                               @AuthenticationPrincipal User user) {
 
-        lostItemService.delete(id, authHeader);
+        lostItemService.delete(id, user.getId());
 
-        return ResponseEntity.ok()
-                .build();
+        return ResponseEntity.ok().build();
     }
+
 
     // 분실물 글 수정 API
     @PutMapping("/api/lost-items/{id}")
