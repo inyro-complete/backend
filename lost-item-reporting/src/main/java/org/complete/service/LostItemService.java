@@ -15,8 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Service
 public class LostItemService {
@@ -25,11 +23,8 @@ public class LostItemService {
     private final TokenService tokenService;
     private final ImageService imageService;
 
-    // 인가를 확인한 후 분실물 정보를 저장하는 메서드
-    public LostItem addLostItem(String authHeader, AddLostItemRequest request) {
-
-        String accessToken = authHeader.replace("Bearer ", "");
-        tokenService.validateToken(accessToken);
+    // 분실물 정보를 저장하는 메서드
+    public LostItem addLostItem(Long userId, AddLostItemRequest request) {
 
         String imageUrl = imageService.uploadImage(request.getImageFile());
 
@@ -40,7 +35,7 @@ public class LostItemService {
                 .lostDate(request.getLostDate())
                 .imageUrl(imageUrl)
                 .status("FINDING") // 기본 값으로 'FINDING' 설정
-                .loserId(tokenService.getUserId(accessToken))
+                .loserId(userId)
                 .build());
     }
 
@@ -74,23 +69,19 @@ public class LostItemService {
     }
 
     // 분실물 삭제 메서드
-    public void delete(Long id, String authHeader) {
+    public void delete(Long id, Long userId) {
 
-        String accessToken = authHeader.replace("Bearer ", "");
-
-        tokenService.validateToken(accessToken);
-
-        Long userId = tokenService.getUserId(accessToken);
         LostItem lostItem = lostItemRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "LostItem with ID " + id + " not found."));
 
-        // 삭제 요청한 사용자가 해당 분실물의 작성자와 일치하는지 확인
+        // 삭제 권한 확인
         if (!lostItem.getLoserId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to delete this lost item.");
         }
 
         lostItemRepository.deleteById(id);
     }
+
 
 
     // 분실물 수정 메서드
