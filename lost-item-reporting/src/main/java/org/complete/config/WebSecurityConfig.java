@@ -15,6 +15,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import java.util.List;
 
@@ -48,6 +51,7 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/lost-items/*").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/lost-items/*").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/users/me").authenticated()
+                        .requestMatchers("/auth/logout").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

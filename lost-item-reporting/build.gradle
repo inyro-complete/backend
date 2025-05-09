@@ -23,7 +23,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     implementation 'software.amazon.awssdk:s3:2.17.99'
-    implementation 'com.mysql:mysql-connector-j' // aws
+    implementation 'mysql:mysql-connector-java'
+    implementation 'org.springframework:spring-web'
 
     runtimeOnly 'com.h2database:h2'
 

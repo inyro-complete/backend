@@ -4,14 +4,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    defer-datasource-initialization: true
-  datasource:
-    url: jdbc:h2:mem:testdb
-    username: sa
+    defer-datasource-initialization: false
   h2:
     console:
       enabled: true
 
 jwt:
   issuer: lost-item-reporting
-  secret_key: inyro-complete

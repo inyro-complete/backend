@@ -25,11 +25,16 @@ public class AuthController {
     // 회원가입 API
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse> signup(@Valid @RequestBody SignupRequest request) {
-        authService.signup(request);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse("User registered successfully."));
+        try {
+            authService.signup(request);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ApiResponse("User registered successfully."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Failed to register user: " + e.getMessage()));
+        }
     }
+
 
     // 로그인 API
     @PostMapping("/login")
