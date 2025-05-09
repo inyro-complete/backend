@@ -84,9 +84,7 @@ use lost_and_found;]]></console>
     <last-used-providers />
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
-    <open-files>
-      <object connection-id="3e30b11c-c037-41cc-a524-13d0a9f53f72" object-ref="consoles/Connection" />
-    </open-files>
+    <open-files />
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
     <connection id="3e30b11c-c037-41cc-a524-13d0a9f53f72" />

@@ -79,6 +79,7 @@ public class LostItemApiController {
 
 
     // 분실물 글 수정 API
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/api/lost-items/{id}")
     public ResponseEntity<LostItem> updateLostItem(@PathVariable long id, @Valid @ModelAttribute UpdateLostItemRequest request,
                                                    @RequestHeader("Authorization") String authHeader) {

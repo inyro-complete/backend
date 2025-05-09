@@ -1,6 +1,7 @@
 package org.complete.founditem.service;
 
 import lombok.RequiredArgsConstructor;
+//import org.complete.dto.PostListResponse;
 import org.complete.founditem.entity.FoundItem;
 import org.complete.founditem.dto.request.AddFoundItemRequest;
 import org.complete.founditem.dto.request.UpdateFoundItemRequest;
@@ -14,6 +15,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -147,4 +151,13 @@ public class FoundItemService {
                         item.getStatus().name()
                 ));
     }
+
+//    public List<PostListResponse> findByUserId(Long userId) {
+//        List<FoundItem> items = foundItemRepository.findByUserId(userId);
+//
+//        return items.stream()
+//                .map(PostListResponse::new)  // FoundItem → PostListResponse
+//                .collect(Collectors.toList());
+//    }
+
 }

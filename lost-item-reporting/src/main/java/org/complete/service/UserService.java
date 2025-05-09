@@ -3,10 +3,15 @@ package org.complete.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.complete.domain.User;
+//import org.complete.dto.PasswordChangeRequest;
+//import org.complete.dto.PostListResponse;
+import org.complete.dto.PasswordChangeRequest;
 import org.complete.dto.SignupRequest;
 import org.complete.dto.UserResponse;
+//import org.complete.founditem.service.FoundItemService;
 import org.complete.repository.UserRepository;
 import org.springframework.data.domain.*;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +24,8 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+//    private final LostItemService lostItemService;
+//    private final FoundItemService foundItemService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     // 이메일 존재 여부 확인
@@ -81,5 +88,19 @@ public class UserService {
 //
 //        return new PageImpl<>(pageContent, PageRequest.of(page, size), allPosts.size());
 //    }
+
+    // 비밀번호 변경
+    public void changePassword(Long userId, PasswordChangeRequest request) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("Unexpected user."));
+
+        if (!bCryptPasswordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new BadCredentialsException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        // 바로 패스워드 변경
+        user.setPassword(bCryptPasswordEncoder.encode(request.getNewPassword()));
+        // 변경 감지로 자동 반영
+        userRepository.save(user);
+    }
 
 }

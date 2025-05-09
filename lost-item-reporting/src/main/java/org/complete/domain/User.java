@@ -1,10 +1,7 @@
 package org.complete.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +12,7 @@ import java.util.List;
 @Table(name = "users")
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User implements UserDetails {
 
@@ -85,9 +83,4 @@ public class User implements UserDetails {
         return true; // true -> 계정 사용 가능
     }
 
-//    // 사용자 이름 변경
-//    public User update(String nickname) {
-//        this.name = name;
-//        return this;
-//    }
 }
