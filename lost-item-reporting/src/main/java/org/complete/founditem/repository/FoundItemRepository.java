@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface FoundItemRepository extends JpaRepository<FoundItem, Long> {
 
@@ -17,4 +19,5 @@ public interface FoundItemRepository extends JpaRepository<FoundItem, Long> {
      * @return 제목에 해당 키워드가 포함된 FoundItem 페이지 결과
      */
     Page<FoundItem> findByTitleContaining(String title, Pageable pageable);
+//    List<FoundItem> findByUserId(Long userId);
 }

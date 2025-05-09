@@ -11,13 +11,11 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class AddFoundItemRequest {
 
     @NotBlank(message = "제목은 필수입니다.")
     private String title;
 
-    @NotBlank(message = "설명은 필수입니다.")
     private String description;
 
     @NotBlank(message = "습득 장소는 필수입니다.")

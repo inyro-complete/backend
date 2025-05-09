@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.complete.domain.LostItem;
 import org.complete.dto.AddLostItemRequest;
 import org.complete.dto.LostItemListResponse;
+//import org.complete.dto.PostListResponse;
 import org.complete.dto.UpdateLostItemRequest;
 import org.complete.repository.LostItemRepository;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -82,6 +86,14 @@ public class LostItemService {
         lostItemRepository.deleteById(id);
     }
 
+
+//    public List<PostListResponse> findByUserId(Long userId) {
+//        List<LostItem> items = lostItemRepository.findByUserId(userId);
+//
+//        return items.stream()
+//                .map(PostListResponse::new)  // LostItem → PostListResponse
+//                .collect(Collectors.toList());
+//    }
 
 
     // 분실물 수정 메서드

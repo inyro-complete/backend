@@ -2,6 +2,7 @@
 //
 //import lombok.Getter;
 //import org.complete.domain.LostItem;
+//import org.complete.founditem.entity.FoundItem;
 //
 //import java.time.LocalDateTime;
 //
@@ -24,7 +25,7 @@
 //    }
 //
 //    public PostListResponse(FoundItem foundItem) {
-//        this.id = foundItem.getFoundItemId();
+//        this.id = foundItem.getId();
 //        this.title = foundItem.getTitle();
 //        this.lostLocation = foundItem.getFoundLocation();
 //        this.lostDate = foundItem.getFoundDate();
