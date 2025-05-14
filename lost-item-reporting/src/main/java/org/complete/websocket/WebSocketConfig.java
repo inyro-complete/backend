@@ -1,6 +1,6 @@
 package org.complete.websocket;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -11,25 +11,25 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 
 @Configuration
 @EnableWebSocket
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketConfigurer {
 
-    @Autowired
-    private SocketHandler socketHandler; // WebSocket 핸들러
+    private final SocketHandler socketHandler;
+    private final CustomHandshakeInterceptor customHandshakeInterceptor;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        // 채팅방 번호를 포함한 경로로 웹소켓 핸들러 등록
-        registry.addHandler(socketHandler, "/ws/chat/{roomNumber}")
-                .setAllowedOrigins("http://localhost:8080", "http://your-frontend-domain.com") // CORS 설정
-                .addInterceptors(new HttpSessionHandshakeInterceptor(), new CustomHandshakeInterceptor())
-                .withSockJS(); // SockJS 사용하여 폴백 옵션 추가
+        registry.addHandler(socketHandler, "/chats")
+                .addInterceptors(new HttpSessionHandshakeInterceptor(), customHandshakeInterceptor)
+                .setAllowedOrigins("*");
+        // SockJS 제거: 경로 매칭 및 QueryString 처리 위해 WebSocket만 사용
     }
 
     @Bean
     public ServletServerContainerFactoryBean createWebSocketContainer() {
         ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
-        container.setMaxTextMessageBufferSize(500_000);   // 텍스트 메시지 최대 크기
-        container.setMaxBinaryMessageBufferSize(500_000); // 바이너리 메시지 최대 크기
+        container.setMaxTextMessageBufferSize(512000);
+        container.setMaxBinaryMessageBufferSize(512000);
         return container;
     }
 }

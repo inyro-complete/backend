@@ -11,7 +11,7 @@ public class AwsS3Config {
     @Bean
     public S3Client s3Client() {
         return S3Client.builder()
-                .region(Region.AP_NORTHEAST_2) // 버킷이 있는 AWS 리전으로 수정 (예: 서울)
+                .region(Region.US_EAST_1) // AWS 리전: 미국 (버지니아 북부)
                 .build();
     }
 }

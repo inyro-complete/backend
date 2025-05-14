@@ -1,14 +1,15 @@
 spring:
   jpa:
-    show-sql: false # 운영 환경에서는 true → false 추천
+    show-sql: true # 운영 환경에서는 true → false 추천
     properties:
       hibernate:
         format_sql: true
-    defer-datasource-initialization: false
-  datasource:
+    defer-datasource-initialization: true
+#  로컬 테스트용
+#  datasource:
+#    url: jdbc:h2:mem:testdb
+#    username: sa
 
-    url: jdbc:h2:mem:testdb
-    username: sa
 
 
   h2:
@@ -17,5 +18,6 @@ spring:
 
 jwt:
   issuer: lost-item-reporting
-  secret_key: study-springboot
+#  로컬 테스트용
+#  secret_key: study-springboot
 
