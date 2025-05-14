@@ -6,14 +6,16 @@ spring:
         format_sql: true
     defer-datasource-initialization: false
   datasource:
-    url: jdbc:mysql://localhost:3306/mydatabase # 운영용 DB URL로 수정 필요
-    username: root
-    password: "202211049!"
-    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    url: jdbc:h2:mem:testdb
+    username: sa
+
+
   h2:
     console:
       enabled: false  # 운영에서는 보안상 비활성화 추천
 
 jwt:
   issuer: lost-item-reporting
-  secret_key: ${JWT_SECRET_KEY}  # 환경변수로 분리해 보안 강화
+  secret_key: study-springboot
+

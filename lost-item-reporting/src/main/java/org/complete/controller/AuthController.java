@@ -11,6 +11,7 @@ import org.complete.dto.TokenResponse;
 import org.complete.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -25,11 +26,16 @@ public class AuthController {
     // 회원가입 API
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse> signup(@Valid @RequestBody SignupRequest request) {
-        authService.signup(request);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse("User registered successfully."));
+        try {
+            authService.signup(request);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ApiResponse("User registered successfully."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Failed to register user: " + e.getMessage()));
+        }
     }
+
 
     // 로그인 API
     @PostMapping("/login")
@@ -41,7 +47,8 @@ public class AuthController {
     }
 
     // 로그아웃 API (블랙 리스트 방식으로 수정해야함)
-    @GetMapping("/logout")
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/logout")
     public ResponseEntity<ApiResponse> logout(@RequestBody Map<String, String> requestBody,
                                               HttpServletRequest request, HttpServletResponse response) {
         authService.logout(requestBody.get("refreshToken"), request, response);

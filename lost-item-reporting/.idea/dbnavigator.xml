@@ -6,7 +6,7 @@
   </component>
   <component name="DBNavigator.Project.DataEditorManager">
     <record-view-column-sorting-type value="BY_INDEX" />
-    <value-preview-text-wrapping value="true" />
+    <value-preview-text-wrapping value="false" />
     <value-preview-pinned value="false" />
   </component>
   <component name="DBNavigator.Project.DatabaseAssistantManager">
@@ -24,15 +24,15 @@
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="3e30b11c-c037-41cc-a524-13d0a9f53f72">
-      <console name="Connection" type="STANDARD" schema="mysql" session="Main"><![CDATA[CREATE DATABASE IF NOT EXISTS lost_and_found;
-USE lost_and_found;
+      <console name="Connection" type="STANDARD" schema="mysql" session="Main"><![CDATA[CREATE DATABASE blog;
+USE blog;
 
 CREATE TABLE users (
-    user_id BIGINT NOT NULL AUTO_INCREMENT,
+    id BIGINT NOT NULL AUTO_INCREMENT,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
-    PRIMARY KEY (user_id)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE lost_item (
@@ -45,7 +45,7 @@ CREATE TABLE lost_item (
     status VARCHAR(255) NOT NULL,
     loser_id BIGINT NOT NULL,
     PRIMARY KEY (lost_item_id),
-    FOREIGN KEY (loser_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (loser_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE found_item (
@@ -61,7 +61,7 @@ CREATE TABLE found_item (
     status VARCHAR(255) NOT NULL,
     founder_id BIGINT NOT NULL,
     PRIMARY KEY (found_item_id),
-    FOREIGN KEY (founder_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (founder_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE refresh_token (
@@ -69,11 +69,15 @@ CREATE TABLE refresh_token (
     user_id BIGINT NOT NULL,
     refresh_token VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 SHOW TABLES;
-describe users;]]></console>
+describe users;
+drop table users;
+drop database lost_and_found;
+show databases;
+use lost_and_found;]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">
@@ -108,7 +112,7 @@ describe users;]]></console>
           <driver-library value="" />
           <driver value="" />
           <url-type value="DATABASE" />
-          <host value="awseb-e-qdpfbnymt6-stack-awsebrdsdatabase-rmx3bnb5xwwf.crqscgui2qle.ap-northeast-2.rds.amazonaws.com" />
+          <host value="awseb-e-5bh2bk5wki-stack-awsebrdsdatabase-2oqw6dgkbsco.caxoagqe66rw.us-east-1.rds.amazonaws.com" />
           <port value="3306" />
           <database value="mysql" />
           <tns-folder value="" />
@@ -118,7 +122,7 @@ describe users;]]></console>
           <token-type value="" />
           <token-config-file value="" />
           <token-profile value="" />
-          <session-user value="RyuYongju@121.129.146.245" />
+          <session-user value="RyuYongju@203.237.172.113" />
         </database>
         <properties>
           <auto-commit value="false" />
