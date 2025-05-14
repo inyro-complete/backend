@@ -1,18 +1,21 @@
 spring:
   jpa:
-    show-sql: true
+    show-sql: false # 운영 환경에서는 true → false 추천
     properties:
       hibernate:
         format_sql: true
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
   datasource:
+
     url: jdbc:h2:mem:testdb
     username: sa
 
+
   h2:
     console:
-      enabled: true
+      enabled: false  # 운영에서는 보안상 비활성화 추천
 
 jwt:
   issuer: lost-item-reporting
   secret_key: study-springboot
+

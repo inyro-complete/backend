@@ -9,7 +9,6 @@ import org.complete.founditem.dto.response.FoundItemResponse;
 import org.complete.founditem.dto.response.FoundItemListResponse;
 import org.complete.founditem.repository.FoundItemRepository;
 import org.complete.service.ImageService;
-import org.complete.service.TokenService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -24,29 +23,30 @@ import java.util.stream.Collectors;
 public class FoundItemService {
 
     private final FoundItemRepository foundItemRepository;
-    private final TokenService tokenService;
     private final ImageService imageService;
 
     /**
      * 습득물 등록
+     *
+     * @param userId 로그인한 사용자 ID
+     * @param request 습득물 등록 요청 DTO
+     * @return 등록된 습득물 정보
      */
-    public FoundItemResponse addFoundItem(String authHeader, AddFoundItemRequest request) {
-        Long userId = tokenService.getUserId(authHeader.replace("Bearer ", ""));
-
-        // ✅ MultipartFile -> 이미지 업로드 -> URL 저장
+    public FoundItemResponse addFoundItem(Long userId, AddFoundItemRequest request) {
+        // 이미지 업로드 처리
         String imageUrl = imageService.uploadImage(request.getImage());
 
+        // 엔티티 생성 및 저장
         FoundItem foundItem = FoundItem.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .foundLocation(request.getFoundLocation())
                 .foundDate(request.getFoundDate())
-                .storageLocation(request.getStorageLocation()) // ✅ 이 줄 추가!
+                .storageLocation(request.getStorageLocation())
                 .imageUrl(imageUrl)
                 .status(FoundItem.FoundItemStatus.valueOf(request.getStatus()))
                 .finderId(userId)
                 .build();
-
 
         FoundItem savedItem = foundItemRepository.save(foundItem);
 
@@ -62,20 +62,28 @@ public class FoundItemService {
 
     /**
      * 습득물 수정
+     *
+     * @param id 습득물 ID
+     * @param request 수정 요청 DTO
+     * @param userId 로그인한 사용자 ID
+     * @return 수정된 습득물 정보
      */
-    public FoundItemResponse updateFoundItem(Long id, UpdateFoundItemRequest request, String authHeader) {
-        Long userId = tokenService.getUserId(authHeader.replace("Bearer ", ""));
-
+    public FoundItemResponse updateFoundItem(Long id, UpdateFoundItemRequest request, Long userId) {
         FoundItem foundItem = foundItemRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Found item not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "습득물을 찾을 수 없습니다."));
 
-        // ✅ 기존 이미지 유지 or 새 이미지 업로드
+        // ✅ 본인 글인지 확인
+        if (!foundItem.getFinderId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인이 등록한 습득물만 수정할 수 있습니다.");
+        }
+
+        // 이미지가 새로 들어온 경우만 업로드
         String imageUrl = foundItem.getImageUrl();
         if (request.getImage() != null && !request.getImage().isEmpty()) {
             imageUrl = imageService.uploadImage(request.getImage());
         }
 
-        // 업데이트 수행
+        // 엔티티 필드 수정
         foundItem.update(
                 request.getTitle(),
                 request.getDescription(),
@@ -88,8 +96,6 @@ public class FoundItemService {
                 FoundItem.FoundItemStatus.valueOf(request.getStatus())
         );
 
-        foundItemRepository.save(foundItem);
-
         return new FoundItemResponse(
                 foundItem.getId(),
                 foundItem.getTitle(),
@@ -100,15 +106,31 @@ public class FoundItemService {
         );
     }
 
+
     /**
      * 습득물 삭제
+     *
+     * @param id 삭제할 습득물 ID
+     * @param userId 로그인한 사용자 ID
      */
-    public void deleteFoundItem(Long id, String authHeader) {
-        foundItemRepository.deleteById(id);
+    public void deleteFoundItem(Long id, Long userId) {
+        FoundItem item = foundItemRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "습득물을 찾을 수 없습니다."));
+
+        // 본인이 등록한 글인지 확인
+        if (!item.getFinderId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인이 등록한 습득물만 삭제할 수 있습니다.");
+        }
+
+        foundItemRepository.delete(item);
     }
 
     /**
-     * 전체 습득물 조회 (페이징)
+     * 전체 습득물 목록 조회 (페이징)
+     *
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 습득물 목록 페이지
      */
     public Page<FoundItemListResponse> getAllFoundItems(int page, int size) {
         return foundItemRepository.findAll(PageRequest.of(page, size))
@@ -122,11 +144,14 @@ public class FoundItemService {
     }
 
     /**
-     * 단일 습득물 상세 조회
+     * 습득물 상세 조회
+     *
+     * @param id 습득물 ID
+     * @return 습득물 상세 정보
      */
     public FoundItemResponse getFoundItem(Long id) {
         FoundItem item = foundItemRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Found item not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "습득물을 찾을 수 없습니다."));
 
         return new FoundItemResponse(
                 item.getId(),
@@ -139,7 +164,12 @@ public class FoundItemService {
     }
 
     /**
-     * 제목 검색 기반 조회 (페이징)
+     * 제목 기반 검색 (페이징)
+     *
+     * @param title 제목 키워드
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 검색된 습득물 목록 페이지
      */
     public Page<FoundItemListResponse> searchByTitle(String title, int page, int size) {
         return foundItemRepository.findByTitleContaining(title, PageRequest.of(page, size))
