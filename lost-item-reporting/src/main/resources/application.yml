@@ -1,6 +1,6 @@
 spring:
   jpa:
-    show-sql: true
+    show-sql: true # 운영 환경에서는 true → false 추천
     properties:
       hibernate:
         format_sql: true
@@ -10,11 +10,14 @@ spring:
 #    url: jdbc:h2:mem:testdb
 #    username: sa
 
+
+
   h2:
     console:
-      enabled: true
+      enabled: false  # 운영에서는 보안상 비활성화 추천
 
 jwt:
   issuer: lost-item-reporting
 #  로컬 테스트용
 #  secret_key: study-springboot
+
