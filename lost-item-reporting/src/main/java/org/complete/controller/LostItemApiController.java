@@ -33,7 +33,7 @@ public class LostItemApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLostItem);
     }
 
-    // 분실물 목록 조회 API
+    // 분실물 전체 목록 조회 API
     @GetMapping("/api/lost-items/list")
     public ResponseEntity<Page<LostItemListResponse>> findAllLostItems(@RequestParam(defaultValue = "0") int page,
                                                                        @RequestParam(defaultValue = "10") int size) {
@@ -45,10 +45,10 @@ public class LostItemApiController {
     }
 
     // 분실물 상세 조회 API
-    @GetMapping("/api/lost-items/{id}")
-    public ResponseEntity<LostItemResponse> findLostItem(@PathVariable long id) {
+    @GetMapping("/api/lost-items/{lostItemId}")
+    public ResponseEntity<LostItemResponse> findLostItem(@PathVariable Long lostItemId) {
 
-        LostItem lostItem = lostItemService.findById(id);
+        LostItem lostItem = lostItemService.findById(lostItemId);
 
         return ResponseEntity.ok()
                 .body(new LostItemResponse(lostItem));
@@ -66,25 +66,26 @@ public class LostItemApiController {
                 .body(lostItemsList);
     }
 
-    // 분실물 글 삭제 API
+    // 분실물 삭제 API
     @PreAuthorize("isAuthenticated()")
-    @DeleteMapping("/api/lost-items/{id}")
-    public ResponseEntity<Void> deleteLostItem(@PathVariable long id,
+    @DeleteMapping("/api/lost-items/{lostItemId}")
+    public ResponseEntity<Void> deleteLostItem(@PathVariable Long lostItemId,
                                                @AuthenticationPrincipal User user) {
 
-        lostItemService.delete(id, user.getId());
+        lostItemService.delete(lostItemId, user.getId());
 
         return ResponseEntity.ok().build();
     }
 
 
-    // 분실물 글 수정 API
+    // 분실물 수정 API
     @PreAuthorize("isAuthenticated()")
-    @PutMapping("/api/lost-items/{id}")
-    public ResponseEntity<LostItem> updateLostItem(@PathVariable long id, @Valid @ModelAttribute UpdateLostItemRequest request,
-                                                   @RequestHeader("Authorization") String authHeader) {
+    @PutMapping("/api/lost-items/{lostItemId}")
+    public ResponseEntity<LostItem> updateLostItem(@PathVariable Long lostItemId,
+                                                   @AuthenticationPrincipal User user,
+                                                   @Valid @ModelAttribute UpdateLostItemRequest request) {
 
-        LostItem updatedLostItem = lostItemService.update(id, request, authHeader);
+        LostItem updatedLostItem = lostItemService.update(lostItemId, user.getId(), request);
 
         return ResponseEntity.ok(updatedLostItem); // 수정된 분실물 반환
     }

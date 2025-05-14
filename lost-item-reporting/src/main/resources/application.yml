@@ -5,6 +5,7 @@ spring:
       hibernate:
         format_sql: true
     defer-datasource-initialization: true
+#  로컬 테스트용
   datasource:
     url: jdbc:h2:mem:testdb
     username: sa
@@ -15,4 +16,5 @@ spring:
 
 jwt:
   issuer: lost-item-reporting
+#  로컬 테스트용
   secret_key: study-springboot

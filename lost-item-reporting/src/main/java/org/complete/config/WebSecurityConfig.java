@@ -15,9 +15,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import java.util.List;
 
@@ -45,6 +42,7 @@ public class WebSecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/signup").permitAll()
+                        .requestMatchers("/chats/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/check-email").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/lost-items/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/lost-items").permitAll()
@@ -62,7 +60,7 @@ public class WebSecurityConfig {
                         .invalidateHttpSession(true)
                 )
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);;
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         return http.build();
     }

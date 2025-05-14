@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.complete.domain.LostItem;
 import org.complete.dto.AddLostItemRequest;
 import org.complete.dto.LostItemListResponse;
-//import org.complete.dto.PostListResponse;
 import org.complete.dto.UpdateLostItemRequest;
 import org.complete.repository.LostItemRepository;
 import org.springframework.data.domain.Page;
@@ -16,18 +15,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class LostItemService {
 
     private final LostItemRepository lostItemRepository;
     private final TokenService tokenService;
     private final ImageService imageService;
 
-    // 분실물 정보를 저장하는 메서드
+    // 분실물 등록 메서드
     public LostItem addLostItem(Long userId, AddLostItemRequest request) {
 
         String imageUrl = imageService.uploadImage(request.getImageFile());
@@ -43,9 +39,9 @@ public class LostItemService {
                 .build());
     }
 
-    // 분실물 목록을 페이지 단위로 조회하는 메서드
+    // 분실물 전체 목록을 페이지 단위로 조회하는 메서드
     public Page<LostItemListResponse> findAll(int page, int size) {
-        // 페이지 번호가 1보다 작으면 0으로, size가 0 이하이면 10으로 설정
+        // 클라이언트가 요청한 페이지 번호가 1보다 작으면 0으로, 사이즈가 0 이하이면 10으로 설정
         Pageable pageable = PageRequest.of(page < 1 ? 0 : page - 1, size <= 0 ? 10 : size,
                 Sort.by(Sort.Direction.DESC, "lostDate")); // 분실일자(lostDate)를 기준으로 내림차순 정렬
 
@@ -54,14 +50,14 @@ public class LostItemService {
         return lostItemsList.map(LostItemListResponse::new); // DTO로 변환
     }
 
-    // 분실물의 고유 ID로 분실물을 찾아 반환하는 메서드
-    public LostItem findById(Long id) {
+    // 분실물 상세 정보를 분실물의 고유 ID로 조회하는 메서드
+    public LostItem findById(Long lostItemId) {
 
-        return lostItemRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "LostItem with ID " + id + " not found"));
+        return lostItemRepository.findById(lostItemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "LostItem with ID " + lostItemId + " not found"));
     }
 
-    // 이름을 기준으로 분실물 목록을 페이지 단위로 조회하는 메서드
+    // 분실물의 이름으로 분실물 목록을 조회하는 메서드
     public Page<LostItemListResponse> findByTitle(String title, int page, int size) {
 
         Pageable pageable = PageRequest.of(page < 1 ? 0 : page - 1, size <= 0 ? 10 : size,
@@ -73,39 +69,25 @@ public class LostItemService {
     }
 
     // 분실물 삭제 메서드
-    public void delete(Long id, Long userId) {
+    public void delete(Long lostItemId, Long userId) {
 
-        LostItem lostItem = lostItemRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "LostItem with ID " + id + " not found."));
+        LostItem lostItem = lostItemRepository.findById(lostItemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "LostItem with ID " + lostItemId + " not found."));
 
-        // 삭제 권한 확인
+        // 삭제 요청한 사용자가 해당 분실물의 작성자와 일치하는지 확인
         if (!lostItem.getLoserId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to delete this lost item.");
         }
 
-        lostItemRepository.deleteById(id);
+        lostItemRepository.deleteById(lostItemId);
     }
-
-
-//    public List<PostListResponse> findByUserId(Long userId) {
-//        List<LostItem> items = lostItemRepository.findByUserId(userId);
-//
-//        return items.stream()
-//                .map(PostListResponse::new)  // LostItem → PostListResponse
-//                .collect(Collectors.toList());
-//    }
-
 
     // 분실물 수정 메서드
     @Transactional
-    public LostItem update(long id, UpdateLostItemRequest request, String authHeader) {
+    public LostItem update(long lostItemId, Long userId, UpdateLostItemRequest request) {
 
-        String accessToken = authHeader.replace("Bearer ", "");
-        tokenService.validateToken(accessToken);
-
-        Long userId = tokenService.getUserId(accessToken);
-        LostItem lostItem = lostItemRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "LostItem with ID " + id + " not found."));
+        LostItem lostItem = lostItemRepository.findById(lostItemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "LostItem with ID " + lostItemId + " not found."));
 
         // 수정 요청한 사용자가 해당 분실물의 작성자와 일치하는지 확인
         if (!lostItem.getLoserId().equals(userId)) {
@@ -118,6 +100,14 @@ public class LostItemService {
         // DB에 반영
         return lostItemRepository.save(lostItem);
     }
+
+//    public List<PostListResponse> findByUserId(Long userId) {
+//        List<LostItem> items = lostItemRepository.findByUserId(userId);
+//
+//        return items.stream()
+//                .map(PostListResponse::new)  // LostItem → PostListResponse
+//                .collect(Collectors.toList());
+//    }
 
 //    public List<PostListResponse> findByUserId(Long userId) {
 //        List<LostItem> items = lostItemRepository.findByLoserId(userId);
