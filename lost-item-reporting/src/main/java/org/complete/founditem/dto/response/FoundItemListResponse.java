@@ -1,17 +1,16 @@
-package org.complete.dto;
+package org.complete.founditem.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
 @Data
-public class AddFoundItemRequest {
+@AllArgsConstructor
+public class FoundItemListResponse {
+    private Long foundItemId;
     private String title;
-    private String description;
     private String foundLocation;
     private LocalDateTime foundDate;
-    private String imageUrl;
     private String status;
 }
-
