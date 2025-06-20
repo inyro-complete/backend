@@ -3,11 +3,12 @@ package org.complete.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.complete.domain.User;
-import org.complete.dto.PostListResponse;
+//import org.complete.dto.PasswordChangeRequest;
+//import org.complete.dto.PostListResponse;
 import org.complete.dto.PasswordChangeRequest;
 import org.complete.dto.SignupRequest;
 import org.complete.dto.UserResponse;
-import org.complete.founditem.service.FoundItemService;
+//import org.complete.founditem.service.FoundItemService;
 import org.complete.repository.UserRepository;
 import org.springframework.data.domain.*;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,8 +24,8 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final LostItemService lostItemService;
-    private final FoundItemService foundItemService;
+//    private final LostItemService lostItemService;
+//    private final FoundItemService foundItemService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     // 이메일 존재 여부 확인
@@ -67,27 +68,26 @@ public class UserService {
         return new UserResponse(user);
     }
 
-    // 내가 쓴 글 목록 조회
-    public Page<PostListResponse> getPostsByUser(Long userId, int page, int size) {
-        // 분실물 게시글 조회
-        List<PostListResponse> lostPosts = lostItemService.findByUserId(userId);
-
-        // 습득물 게시글 조회
-        List<PostListResponse> foundPosts = foundItemService.findByUserId(userId);
-
-        // 통합 + 최신순 정렬
-        List<PostListResponse> allPosts = new ArrayList<>();
-        allPosts.addAll(lostPosts);
-        allPosts.addAll(foundPosts);
-        allPosts.sort(Comparator.comparing(PostListResponse::getLostDate).reversed());
-
-        // 수동 페이징
-        int start = Math.min(page * size, allPosts.size());
-        int end = Math.min(start + size, allPosts.size());
-        List<PostListResponse> pageContent = allPosts.subList(start, end);
-
-        return new PageImpl<>(pageContent, PageRequest.of(page, size), allPosts.size());
-    }
+//    public Page<PostListResponse> getPostsByUser(Long userId, int page, int size) {
+//        // 분실물 게시글 조회
+//        List<PostListResponse> lostPosts = lostItemService.findByUserId(userId);
+//
+//        // 습득물 게시글 조회
+//        List<PostListResponse> foundPosts = foundItemService.findByUserId(userId);
+//
+//        // 통합 + 최신순 정렬
+//        List<PostListResponse> allPosts = new ArrayList<>();
+//        allPosts.addAll(lostPosts);
+//        allPosts.addAll(foundPosts);
+//        allPosts.sort(Comparator.comparing(PostListResponse::getLostDate).reversed());
+//
+//        // 수동 페이징
+//        int start = Math.min(page * size, allPosts.size());
+//        int end = Math.min(start + size, allPosts.size());
+//        List<PostListResponse> pageContent = allPosts.subList(start, end);
+//
+//        return new PageImpl<>(pageContent, PageRequest.of(page, size), allPosts.size());
+//    }
 
     // 비밀번호 변경
     public void changePassword(Long userId, PasswordChangeRequest request) {

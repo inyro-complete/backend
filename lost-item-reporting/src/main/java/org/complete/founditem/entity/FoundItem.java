@@ -45,7 +45,7 @@ public class FoundItem {
     @Column
     private String loserName;
 
-    /** 이미지 URL (예: "https://example.com/images/item.jpg") - 선택 입력 */
+    /** 이미지 URL - 선택 입력 */
     @Column
     private String imageUrl;
 

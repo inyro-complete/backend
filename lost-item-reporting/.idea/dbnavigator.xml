@@ -24,7 +24,7 @@
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="3e30b11c-c037-41cc-a524-13d0a9f53f72">
-      <console name="Connection" type="STANDARD" schema="mysql" session="Main"><![CDATA[CREATE DATABASE blog;
+      <console name="Connection" type="STANDARD" schema="mysql" session="Main">CREATE DATABASE blog;
 USE blog;
 
 CREATE TABLE users (
@@ -95,10 +95,7 @@ describe users;
 drop table users;
 drop database lost_and_found;
 show databases;
-use lost_and_found;
-select * from lost_item;
-select * from refresh_token;
-delete from ;]]></console>
+use lost_and_found;</console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">
