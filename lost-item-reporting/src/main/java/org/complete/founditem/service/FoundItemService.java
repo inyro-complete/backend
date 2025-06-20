@@ -2,7 +2,6 @@ package org.complete.founditem.service;
 
 import lombok.RequiredArgsConstructor;
 //import org.complete.dto.PostListResponse;
-import org.complete.dto.PostListResponse;
 import org.complete.founditem.entity.FoundItem;
 import org.complete.founditem.dto.request.AddFoundItemRequest;
 import org.complete.founditem.dto.request.UpdateFoundItemRequest;
@@ -10,7 +9,6 @@ import org.complete.founditem.dto.response.FoundItemResponse;
 import org.complete.founditem.dto.response.FoundItemListResponse;
 import org.complete.founditem.repository.FoundItemRepository;
 import org.complete.service.ImageService;
-import org.complete.service.TokenService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -98,8 +96,6 @@ public class FoundItemService {
                 FoundItem.FoundItemStatus.valueOf(request.getStatus())
         );
 
-        foundItemRepository.save(foundItem);
-
         return new FoundItemResponse(
                 foundItem.getId(),
                 foundItem.getTitle(),
@@ -186,12 +182,12 @@ public class FoundItemService {
                 ));
     }
 
-    public List<PostListResponse> findByUserId(Long userId) {
-        List<FoundItem> items = foundItemRepository.findByFinderId(userId);
-
-        return items.stream()
-                .map(PostListResponse::new)  // FoundItem → PostListResponse
-                .collect(Collectors.toList());
-    }
+//    public List<PostListResponse> findByUserId(Long userId) {
+//        List<FoundItem> items = foundItemRepository.findByUserId(userId);
+//
+//        return items.stream()
+//                .map(PostListResponse::new)  // FoundItem → PostListResponse
+//                .collect(Collectors.toList());
+//    }
 
 }

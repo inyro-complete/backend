@@ -1,18 +1,14 @@
 package org.complete.founditem.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.complete.domain.User;
 import org.complete.founditem.dto.request.AddFoundItemRequest;
 import org.complete.founditem.dto.request.UpdateFoundItemRequest;
 import org.complete.founditem.dto.response.FoundItemListResponse;
 import org.complete.founditem.dto.response.FoundItemResponse;
 import org.complete.founditem.service.FoundItemService;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,36 +19,32 @@ public class FoundItemApiController {
     private final FoundItemService foundItemService;
 
     // 습득물 등록
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping(consumes = "multipart/form-data")
+    @PostMapping
     public ResponseEntity<FoundItemResponse> addFoundItem(
-            @AuthenticationPrincipal User user,
-            @Valid @ModelAttribute AddFoundItemRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(foundItemService.addFoundItem(user.getId(), request));
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody AddFoundItemRequest request) {
+        return ResponseEntity.ok(foundItemService.addFoundItem(authHeader, request));
     }
 
     // 습득물 수정
-    @PreAuthorize("isAuthenticated()")
-    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
+    @PutMapping("/{id}")
     public ResponseEntity<FoundItemResponse> updateFoundItem(
             @PathVariable Long id,
-            @Valid @ModelAttribute UpdateFoundItemRequest request,
-            @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(foundItemService.updateFoundItem(id, request, user.getId()));
+            @RequestBody UpdateFoundItemRequest request,
+            @RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(foundItemService.updateFoundItem(id, request, authHeader));
     }
 
     // 습득물 삭제
-    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFoundItem(
             @PathVariable Long id,
-            @AuthenticationPrincipal User user) {
-        foundItemService.deleteFoundItem(id, user.getId());
+            @RequestHeader("Authorization") String authHeader) {
+        foundItemService.deleteFoundItem(id, authHeader);
         return ResponseEntity.noContent().build();
     }
 
-    // 전체 목록
+    // 전체 습득물 조회
     @GetMapping
     public ResponseEntity<Page<FoundItemListResponse>> getAllFoundItems(
             @RequestParam(defaultValue = "0") int page,
@@ -60,18 +52,18 @@ public class FoundItemApiController {
         return ResponseEntity.ok(foundItemService.getAllFoundItems(page, size));
     }
 
-    // 상세 조회
+    // 습득물 상세 조회
     @GetMapping("/{id}")
     public ResponseEntity<FoundItemResponse> getFoundItem(@PathVariable Long id) {
         return ResponseEntity.ok(foundItemService.getFoundItem(id));
     }
 
-    // 제목 검색
+    // 습득물 중에서 이름으로 조회
     @GetMapping("/search")
     public ResponseEntity<Page<FoundItemListResponse>> searchByTitle(
-            @RequestParam String title,
+            @RequestParam String name,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(foundItemService.searchByTitle(title, page, size));
+        return ResponseEntity.ok(foundItemService.searchByTitle(name, page, size));
     }
 }
