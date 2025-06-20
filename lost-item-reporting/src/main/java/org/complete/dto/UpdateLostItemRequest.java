@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -26,7 +27,7 @@ public class UpdateLostItemRequest {
     @NotNull
     private LocalDateTime lostDate;
 
-    private String imageUrl;
+    private MultipartFile imageFile;
 
     @NotBlank(message = "Status is a required field")
     private String status;

@@ -23,21 +23,25 @@ public class ChatRoomService {
     //채팅방 개설
     @Transactional
     public ChatRoom createRoom(User user, User other) {
+        User first = user.getId() < other.getId() ? user : other;
+        User second = user.getId() < other.getId() ? other : user;
+
         return chatRoomRepository.save(ChatRoom.builder()
-                .user(user)
-                .other(other)
+                .user(first)     // 항상 ID가 작은 유저를 user로
+                .other(second)   // 큰 유저를 other로
                 .build());
     }
 
-    @Transactional
     public Optional<ChatRoom> findByUserAndOther(User user, User other) {
-        return chatRoomRepository.findByUserAndOther(user, other);
+        User first = user.getId() < other.getId() ? user : other;
+        User second = user.getId() < other.getId() ? other : user;
+
+        return chatRoomRepository.findByUserAndOther(first, second);
     }
 
     @Transactional(readOnly = true)
     public List<ChatRoomWithMessagesDto> findByUserId(Long userId) {
-
-        List<ChatRoom> rooms = chatRoomRepository.findByUserId(userId);
+        List<ChatRoom> rooms = chatRoomRepository.findByUserIdOrOtherId(userId, userId);
 
         return rooms.stream()
                 .map(room -> {
@@ -46,6 +50,7 @@ public class ChatRoomService {
                 })
                 .collect(Collectors.toList());
     }
+
 
     //채팅방 삭제
     @Transactional

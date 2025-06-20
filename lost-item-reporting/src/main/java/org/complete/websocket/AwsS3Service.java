@@ -1,50 +1,78 @@
 package org.complete.websocket;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.core.sync.RequestBody;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
 public class AwsS3Service {
 
-    private static final Logger logger = Logger.getLogger(AwsS3Service.class.getName());
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
-    private final S3Client s3Client; // AWS SDK v2 기준
-    private final String bucketName = "your-bucket-name"; // S3 버킷 이름
+    private final AmazonS3 amazonS3;
 
-    public URL upload(MultipartFile file, String dirName) {
-        // 파일 이름 생성
-        String fileName = dirName + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+    public String uploadFile(MultipartFile multipartFile) {
+        String fileName = createFileName(multipartFile.getOriginalFilename());
 
-        try {
-            // PutObjectRequest 빌드
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(fileName)
-                    .contentType(file.getContentType())
-                    .build();
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(multipartFile.getSize());
+        objectMetadata.setContentType(multipartFile.getContentType());
 
-            // 파일 업로드
-            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
-            logger.info("파일 업로드 성공: " + fileName);
-
-            // 업로드된 파일의 URL 반환
-            return new URL("https://" + bucketName + ".s3.amazonaws.com/" + fileName);
+        try (InputStream inputStream = multipartFile.getInputStream()) {
+            amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (IOException e) {
-            logger.severe("파일 업로드 실패: " + e.getMessage());
-            throw new RuntimeException("파일 업로드 중 오류가 발생했습니다.", e);
-        } catch (Exception e) {
-            logger.severe("예상치 못한 오류: " + e.getMessage());
-            throw new RuntimeException("알 수 없는 오류가 발생했습니다.", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
         }
+
+        return amazonS3.getUrl(bucket, fileName).toString();
+    }
+
+    public String createFileName(String fileName) {
+        return UUID.randomUUID().toString().concat(getFileExtension(fileName));
+    }
+
+    private String getFileExtension(String fileName) {
+        try {
+            return fileName.substring(fileName.lastIndexOf("."));
+        } catch (StringIndexOutOfBoundsException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일(" + fileName + ") 입니다.");
+        }
+    }
+
+    public void deleteFile(String fileUrl) {
+        String fileName = extractFileNameFromUrl(fileUrl);
+        if (fileName == null || fileName.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일명 추출 실패: URL이 올바르지 않습니다.");
+        }
+        
+        try {
+            amazonS3.deleteObject(new DeleteObjectRequest(bucket, fileName));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "S3 파일 삭제 실패", e);
+        }
+    }
+
+    private String extractFileNameFromUrl(String url) {
+        // URL의 마지막 '/' 이후 부분을 파일명으로 추출
+        int lastSlashIndex = url.lastIndexOf('/');
+        if (lastSlashIndex == -1 || lastSlashIndex == url.length() - 1) {
+            return null;
+        }
+        return url.substring(lastSlashIndex + 1);
     }
 }

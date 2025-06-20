@@ -47,17 +47,17 @@ public class UserApiController {
                 .body(userResponse);
     }
 
-//    // 내가 쓴 글 목록 조회 API
-//    @PreAuthorize("isAuthenticated()")
-//    @GetMapping("/api/users/me/posts")
-//    public ResponseEntity<Page<PostListResponse>> getMyPosts(@AuthenticationPrincipal User user,
-//                                                             @RequestParam(defaultValue = "0") int page,
-//                                                             @RequestParam(defaultValue = "10") int size) {
-//
-//        Page<PostListResponse> posts = userService.getPostsByUser(user.getId(), page, size);
-//
-//        return ResponseEntity.ok(posts);
-//    }
+    // 내가 쓴 글 목록 조회 API
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/api/users/my-posts")
+    public ResponseEntity<Page<PostListResponse>> getMyPosts(@AuthenticationPrincipal User user,
+                                                             @RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "10") int size) {
+
+        Page<PostListResponse> posts = userService.getPostsByUser(user.getId(), page, size);
+
+        return ResponseEntity.ok(posts);
+    }
 
     // 비밀번호 변경 API
     @PreAuthorize("isAuthenticated()")

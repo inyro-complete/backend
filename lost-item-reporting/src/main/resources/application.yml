@@ -18,3 +18,15 @@ jwt:
   issuer: lost-item-reporting
 #  로컬 테스트용
 #  secret_key: study-springboot
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: us-east-1
+    s3:
+      bucket: lostitemreporting-inyro-image
+    stack:
+      auto: false

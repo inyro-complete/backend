@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface LostItemRepository extends JpaRepository<LostItem, Long> {
     Page<LostItem> findByTitle(String title, Pageable pageable);
-//    List<LostItem> findByUserId(Long userId);
+    List<LostItem> findByLoserId(Long userId);
 }

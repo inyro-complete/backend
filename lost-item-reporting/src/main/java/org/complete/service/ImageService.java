@@ -1,18 +1,17 @@
 package org.complete.service;
 
+import lombok.RequiredArgsConstructor;
+import org.complete.websocket.AwsS3Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
-
 @Service
+@RequiredArgsConstructor
 public class ImageService {
+
+    private final AwsS3Service awsS3Service;
 
     public String uploadImage(MultipartFile imageFile) {
         if (imageFile == null || imageFile.isEmpty() || imageFile.getOriginalFilename() == null) {
@@ -39,18 +38,13 @@ public class ImageService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File size exceeds the maximum limit of 5MB.");
         }
 
-        String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-        Path uploadDirPath = Paths.get("uploads/images");
-        Path filePath = uploadDirPath.resolve(fileName);
-
         try {
-            Files.createDirectories(uploadDirPath);
-            imageFile.transferTo(filePath);
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to save the image file.", e);
+            // S3 업로드 및 절대 URL 반환
+            return awsS3Service.uploadFile(imageFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "S3 이미지 업로드 실패", e);
         }
-
-        return "/images/" + fileName;
     }
 
     private String getFileExtension(String fileName) {
@@ -59,5 +53,9 @@ public class ImageService {
             return fileName.substring(dotIndex + 1);
         }
         return "";
+    }
+
+    public void deleteFile(String fileUrl) {
+        awsS3Service.deleteFile(fileUrl);
     }
 }

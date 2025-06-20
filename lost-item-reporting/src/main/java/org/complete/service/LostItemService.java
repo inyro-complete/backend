@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.complete.domain.LostItem;
 import org.complete.dto.AddLostItemRequest;
 import org.complete.dto.LostItemListResponse;
+import org.complete.dto.PostListResponse;
 import org.complete.dto.UpdateLostItemRequest;
 import org.complete.repository.LostItemRepository;
 import org.springframework.data.domain.Page;
@@ -15,12 +16,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class LostItemService {
 
     private final LostItemRepository lostItemRepository;
-    private final TokenService tokenService;
     private final ImageService imageService;
 
     // 분실물 등록 메서드
@@ -79,6 +82,8 @@ public class LostItemService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to delete this lost item.");
         }
 
+        imageService.deleteFile(lostItem.getImageUrl());
+
         lostItemRepository.deleteById(lostItemId);
     }
 
@@ -95,24 +100,25 @@ public class LostItemService {
         }
 
         // 분실물 정보 업데이트
-        lostItem.update(request.getTitle(), request.getDescription(), request.getLostLocation(), request.getLostDate(), request.getImageUrl(), request.getStatus());
+        String imageUrl = imageService.uploadImage(request.getImageFile());
+        lostItem.update(
+                request.getTitle(),
+                request.getDescription(),
+                request.getLostLocation(),
+                request.getLostDate(),
+                imageUrl,
+                request.getStatus()
+        );
 
         // DB에 반영
         return lostItemRepository.save(lostItem);
     }
 
-//    public List<PostListResponse> findByUserId(Long userId) {
-//        List<LostItem> items = lostItemRepository.findByUserId(userId);
-//
-//        return items.stream()
-//                .map(PostListResponse::new)  // LostItem → PostListResponse
-//                .collect(Collectors.toList());
-//    }
+    public List<PostListResponse> findByUserId(Long userId) {
+        List<LostItem> items = lostItemRepository.findByLoserId(userId);
 
-//    public List<PostListResponse> findByUserId(Long userId) {
-//        List<LostItem> items = lostItemRepository.findByLoserId(userId);
-//        return items.stream()
-//                .map(PostListResponse::new)
-//                .toList();
-//    }
+        return items.stream()
+                .map(PostListResponse::new)  // LostItem → PostListResponse
+                .collect(Collectors.toList());
+    }
 }
